@@ -1,16 +1,26 @@
-import contract from 'truffle-contract'
-import Network from "./network"
+import Network from "./network";
+import Web3 from 'web3';
+import TokenVesting from './abis/TokenVesting';
+import SimpleToken from './abis/SimpleToken';
+
 
 export async function getTokenVesting(address) {
-  const TokenVesting = contract(require('contracts/TokenVesting.json'))
-  const provider = await Network.provider()
-  TokenVesting.setProvider(provider)
-  return TokenVesting.at(address)
+	const provider = await Network.provider();
+	const web3 = new Web3(provider);
+  const tokenVesting = new web3.eth.Contract(
+  		TokenVesting.abi,
+  		address,
+  	)
+  return tokenVesting;
 }
 
 export async function getSimpleToken(address) {
-  const SimpleToken = contract(require('contracts/SimpleToken.json'))
-  const provider = await Network.provider()
-  SimpleToken.setProvider(provider)
-  return SimpleToken.at(address)
+  const provider = await Network.provider();
+  const web3 = new Web3(provider);
+
+  const simpleToken = new web3.eth.Contract(
+  	SimpleToken.abi,
+  	address,
+  );
+  return simpleToken
 }

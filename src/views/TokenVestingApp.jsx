@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Grid, Row, Col } from 'react-bootstrap'
+import BigNumber from 'bignumber.js';
 
 import { getTokenVesting, getSimpleToken } from '../contracts'
 
@@ -61,30 +62,33 @@ class TokenVestingApp extends Component {
     const tokenVesting = await getTokenVesting(address)
     const tokenContract = await getSimpleToken(token)
 
-    const start = await tokenVesting.start()
-    const duration = await tokenVesting.duration()
-    const end = start.plus(duration)
+    const start = await tokenVesting.methods.start().call()
+    const duration = await tokenVesting.methods.duration().call()
+    const end = new BigNumber(start).plus(duration).toFixed();
 
-    const balance  = await tokenContract.balanceOf(address)
-    const released = await tokenVesting.released(token)
-    const total = balance.plus(released)
+    const balance  = await tokenContract.methods.balanceOf(address).call();
+    const released = await tokenVesting.methods.released(token).call();
+    const total = new BigNumber(balance).plus(released).toFixed();
 
-    this.setState({
+    const state = {
       start,
       end,
-      cliff: await tokenVesting.cliff(),
+      cliff: await tokenVesting.methods.cliff().call(),
       total,
       released,
-      vested: await tokenVesting.vestedAmount(token),
-      decimals: await tokenContract.decimals(),
-      beneficiary: await tokenVesting.beneficiary(),
-      owner: await tokenVesting.owner(),
-      revocable: await tokenVesting.revocable(),
-      revoked: await tokenVesting.revoked(token),
-      name: await tokenContract.name(),
-      symbol: await tokenContract.symbol(),
+      vested: await tokenVesting.methods.released(token).call(),
+      decimals: await tokenContract.methods.decimals().call(),
+      beneficiary: await tokenVesting.methods.beneficiary().call(),
+      owner: await tokenVesting.methods.owner().call(),
+      revocable: await tokenVesting.methods.revocable().call(),
+      revoked: await tokenVesting.methods.revoked(token).call(),
+      name: await tokenContract.methods.name().call(),
+      symbol: await tokenContract.methods.symbol().call(),
       loading: false
-    })
+    };
+
+    debugger;
+    this.setState(state)
   }
 }
 
